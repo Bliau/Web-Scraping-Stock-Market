@@ -1,0 +1,181 @@
+<!DOCTYPE HTML>
+<!--
+	Massively by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Webscraping Stock Market</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Header -->
+					<header id="header">
+						<a href="index.html" class="logo">My Project</a>
+					</header>
+
+				<!-- Nav -->
+					<nav id="nav">
+						<ul class="links">
+							<li><a href="index.html#header">Main</a></li>
+							<li><a href="about_me.html">About Me</a></li>
+							<li class="active"><a href="index.html#mypost">Back</a></li>
+							<!--<li><a href="elements.html">Elements Reference</a></li>-->
+						</ul>
+						<ul class="icons">
+							<li><a href="https://www.linkedin.com/in/brandon-liau-0700b6163/" class="icon brands alt fa-linkedin"><span class="label">LinkedIn</span></a></li>
+							<li><a href="https://github.com/Bliau" class="icon brands alt fa-github"><span class="label">GitHub</span></a></li>
+						</ul>
+					</nav>
+
+				<!-- Main -->
+					<div id="main">
+
+						<!-- Post -->
+							<section class="post">
+								<header class="major">
+									<!--<span class="date">April 25, 2017</span>-->
+									<h1>Webscraping Stock Market<br />
+									</h1>
+									<!--<p>Aenean ornare velit lacus varius enim ullamcorper proin aliquam<br />
+									facilisis ante sed etiam magna interdum congue. Lorem ipsum dolor<br />
+									amet nullam sed etiam veroeros.</p>-->
+								</header>
+								<p>This was one of the projects I did when took the IBM Data Analyst Professional Certification.</p>
+								<h2>Project Overview</h2>
+								<p>For this project, I will assume the role of a Data Scientist / Data Analyst working for a new startup investment firm that helps customers invest their money in stocks. My job is to extract financial data like historical share price and quarterly revenue reportings from various sources using Python libraries and web scraping on popular stocks. After collecting this data I will visualize it in a dashboard to identify patterns or trends. The stocks we will work with are Tesla and GameStop.</p>
+				
+								<h2>Coding:</h2>
+								<p>I started with importing all the libraries that I need.</p>
+								<pre><code>import yfinance as yf
+import pandas as pd
+import requests
+from bs4 import BeautifulSoup as soup
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots</code></pre>
+							
+								<p>Since we have already imported the yfinance, we can now use the `Ticker` function to extract the stock data. The stock is Tesla and its ticker symbol is `TSLA`.</p>
+								<pre><code>tesla = yf.Ticker("TSLA")</code></pre>
+								<p>Using the ticker object and the function `history` extract stock information and save it in a dataframe named `tesla_data`. Set the `period` parameter to `max` so we get information for the maximum amount of time.</p>
+								<p>Reset the index using the `reset_index(inplace=True)` function on the tesla_data DataFrame and display the first five rows of the `tesla_data` dataframe using the `head` function.</p>
+								<pre><code>tesla_data = tesla.history(period="max")
+tesla_data.reset_index(inplace=True)
+
+## view the first 5 row of the data
+tesla_data.head()</code></pre>
+								<span class="image centre"><img src="images/webscrape1.JPG" alt="" /></span>
+
+								<p>Now that we have collected the the stock data using yFiance. Lets get the company revenue using the request</p>
+								<pre><code>from urllib.request import urlopen as uReq
+my_url_tsla = 'https://www.macrotrends.net/stocks/charts/TSLA/tesla/revenue'
+uClient = uReq(my_url_tsla)
+html_data = uClient.read()
+uClient.close()</code></pre>
+								<p>Using html parser to parse the site</p>
+								<pre><code>page_soup_tsla = soup(html_data, "html.parser")</code></pre>
+								<p>we can then now scrape the data off the website</p>
+								<pre><code>tesla_revenue = pd.DataFrame(columns=["Date", "Revenue"])
+
+tesla_data_html = page_soup_tsla.findAll("div",{"class":"col-xs-6"})[1].find("tbody").find_all("tr")
+for row in tesla_data_html:
+	col = row.find_all("td")
+	date =col[0].text
+	revenue = col[1].text.replace("$", "").replace(",", "")
+										
+	tesla_revenue = tesla_revenue.append({"Date":date, "Revenue": revenue}, ignore_index=True)</code></pre>
+								
+								<pre><code>tesla_revenue.head()</code></pre>
+								<span class="image centre"><img src="images/Capture.JPG" alt="" /></span>
+								<p>Upon checking the data types i realised that the revenue data type was in object so i have to cast it to float so that i can create the graph later on.</p>
+								<pre><code>tesla_revenue.dtypes</code></pre>
+								<span class="image centre"><img src="images/dtypes" alt="" /></span>
+								<pre><code>#casting to float
+
+tesla_revenue["Revenue"] = pd.to_numeric(tesla_revenue["Revenue"], downcast="float")
+tesla_revenue.tail(5)</code></pre>
+								<p>Now that we have done Tesla part, now we can do the exact thing to Game Stop. The ticker name for GameStop is "GME"</p>
+								<pre><code>GameStop = yf.Ticker("GME")</code></pre>
+								<pre><code>gme_data = GameStop.history(period="max")
+gme_data.reset_index(inplace=True)
+gme_data.head()</code></pre>
+								<span class="image centre"><img src="images/gmedata" alt="" /></span>
+								<p>Scraping GameStop revenue off the website.</p>
+								<pre><code>from urllib.request import urlopen as uReq
+my_url_gme = 'https://www.macrotrends.net/stocks/charts/GME/gamestop/revenue'
+uClient = uReq(my_url_gme)
+html_data = uClient.read()
+uClient.close()</code></pre>
+<pre><code>page_soup_gme = soup(html_data, "html.parser")</code></pre>
+<pre><code>gme_revenue = pd.DataFrame(columns=["Date", "Revenue"])
+
+gme_data_html = page_soup_gme.findAll("div",{"class":"col-xs-6"})[1].find("tbody").find_all("tr")
+for row in gme_data_html:
+    col = row.find_all("td")
+    date =col[0].text
+    revenue = col[1].text.replace("$", "").replace(",", "")
+    
+    gme_revenue = gme_revenue.append({"Date":date, "Revenue":revenue}, ignore_index=True)</code></pre>
+
+<pre><code>gme_revenue</code></pre>
+								<span class="image centre"><img src="images/gmerevenue" alt="" /></span>
+								<p>Checking data types and casting float to revenue</p>
+								<pre><code>gme_revenue.dtypes</code></pre>
+								<span class="image centre"><img src="images/dtypes" alt="" /></span>
+								<pre><code>gme_revenue['Revenue'] = pd.to_numeric(gme_revenue['Revenue'], downcast="float")</code></pre>
+								<p>Now that we have the data we need, we can use the below pre defined graph script to create a simple line chart.</p>
+								<pre><code>def make_graph(stock_data, revenue_data, stock):
+    fig = make_subplots(rows=2, cols=1, shared_xaxes=True, subplot_titles=("Historical Share Price", "Historical Revenue"), vertical_spacing = .3)
+    fig.add_trace(go.Scatter(x=pd.to_datetime(stock_data.Date, infer_datetime_format=True), y=stock_data.Close.astype("float"), name="Share Price"), row=1, col=1)
+    fig.add_trace(go.Scatter(x=pd.to_datetime(revenue_data.Date, infer_datetime_format=True), y=revenue_data.Revenue.astype("float"), name="Revenue"), row=2, col=1)
+    fig.update_xaxes(title_text="Date", row=1, col=1)
+    fig.update_xaxes(title_text="Date", row=2, col=1)
+    fig.update_yaxes(title_text="Price ($US)", row=1, col=1)
+    fig.update_yaxes(title_text="Revenue ($US Millions)", row=2, col=1)
+    fig.update_layout(showlegend=False,
+    height=900,
+    title=stock,
+    xaxis_rangeslider_visible=True)
+    fig.show()</code></pre>
+
+								<p>Lets create the graph for Tesla.</p>
+								<pre><code>make_graph(tesla_data, tesla_revenue, 'Tesla')</code></pre>
+								<span class="image fit"><img src="images/Tesla Chart.png" alt="" /></span>
+								<p>Now lets create the graph for GameStop.</p>
+								<pre><code>make_graph(gme_data, gme_revenue, 'GameStop')</code></pre>
+								<span class="image fit"><img src="images/GME CHART.png" alt="" /></span>
+								<h2>Conclusion</h2>
+								<p>My initial hypothesis was that the revenue and the stock price are corelated. The share price will increase together the revenue, the more money the company make the higher share price is. It is true for the case of Tesla, but it is different fror GameStop. <br />
+								As you can see above graph, there is no corelation between the share price and the company revenue. The company revenue is very fluctuate and there is a small downward trend, but the share price of GameStop is very consistent over the year but interestingly there is a spike in year 2021. The reason for the short squeeze is very intereting and you can learn more about it <a href="https://en.wikipedia.org/wiki/GameStop_short_squeeze">here</a>.</p>
+
+
+
+
+							</section>
+							</div>
+
+				<!-- Copyright -->
+					<div id="copyright">
+						<ul><li>&copy; Brandon Liau</li><li>Design: <a href="https://html5up.net">HTML5 UP</a></li></ul>
+					</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrollex.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>

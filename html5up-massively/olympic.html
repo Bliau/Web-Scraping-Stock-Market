@@ -1,0 +1,257 @@
+<!DOCTYPE HTML>
+<!--
+	Massively by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Olympic Games</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Header -->
+					<header id="header">
+						<a href="index.html" class="logo">My Project</a>
+					</header>
+
+				<!-- Nav -->
+					<nav id="nav">
+						<ul class="links">
+							<li><a href="index.html#header">Main</a></li>
+							<li><a href="about_me.html">About Me</a></li>
+							<li class="active"><a href="index.html#mypost">Back</a></li>
+							<!--<li><a href="elements.html">Elements Reference</a></li>-->
+						</ul>
+						<ul class="icons">
+							<li><a href="https://www.linkedin.com/in/brandon-liau-0700b6163/" class="icon brands alt fa-linkedin"><span class="label">LinkedIn</span></a></li>
+							<li><a href="https://github.com/Bliau" class="icon brands alt fa-github"><span class="label">GitHub</span></a></li>
+						</ul>
+					</nav>
+
+				<!-- Main -->
+					<div id="main">
+
+						<!-- Post -->
+							<section class="post">
+								<header class="major">
+									<!--<span class="date">April 25, 2017</span>-->
+									<h1>Data Exploratory-Olympic Games<br />
+									</h1>
+									<!--<p>Aenean ornare velit lacus varius enim ullamcorper proin aliquam<br />
+									facilisis ante sed etiam magna interdum congue. Lorem ipsum dolor<br />
+									amet nullam sed etiam veroeros.</p>-->
+								</header>
+								<h2>Project Overview</h2>
+								<p>This will one of my favourite projects I must say. I got this inspiration from a YouTube video uploaded by Simplilearn. In this project I will be exploring Olympic data from Kaggle by <a href="https://www.kaggle.com/heesoo37/120-years-of-olympic-history-athletes-and-results">rgriffin</a>, will be doing some data wrangling and some basic data visualisation.</br>
+									Before starting the project, I have listed some of the questions that can guide me through the analysis. 
+								</p>
+								<ol>
+									<li>Top 10 highest count of participants by country</li>
+									<li>Age distribution of the athletes - histogram</li>
+									<li>Summer and Winter games unique sports</li>
+									<li>Gender distribution. MALE & FEMALE</li>
+									<li>Top 5 gold medal count per country- Gold</li>
+									<li>Count of medals - Who won the most medal (not only gold)</li>
+								</ol>
+				
+								<h2>Coding:</h2>
+								<p>First thing first let's import all the libraries that I will be using for this project and import the datasets</p>
+								<pre><code>mport pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+%matplotlib inline</code></pre>
+
+<pre><code>#importing the datasets
+ath = pd.read_csv('C:/Users/User/Desktop/Data Analysis project/Exploratory data - Olympic/athlete_events.csv')
+reg = pd.read_csv('C:/Users/User/Desktop/Data Analysis project/Exploratory data - Olympic/noc_regions.csv')</code></pre>
+							
+								<h2>To explain more about this dataset</h2>
+								<p>The file athlete_events.csv composed of 271116 rows and 15 columns. Each row corresponds to an individual athlete competing in an individual Olympic event (athlete-events). The columns are as per below:</p>
+								<ol>
+									<li><b>ID</b>- Unique number for each athlete</li>
+									<li><b>Name</b> - Athlete's name</li>
+									<li><b>Sex</b> - M or F</li>
+									<li><b>Age</b> - Integer</li>
+									<li><b>Height</b> - In centimeters</li>
+									<li><b>Weight</b> - In kilograms</li>
+									<li><b>Team</b> - Team name</li>
+									<li><b>NOC</b> - National Olympic Committee 3-letter code</li>
+									<li><b>Games</b> - Year and season</li>
+									<li><b>Year</b> - Integer</li>
+									<li><b>Season</b> - Summer or Winter</li>
+									<li><b>City</b> - Host city</li>
+									<li><b>Sport</b> - Sport</li>
+									<li><b>Event</b> - Event</li>
+									<li><b>Medal</b> - Gold, Silver, Bronze, or NA</li>
+								</ol>
+								<p>The file noc_regions.csv consists of 3 columns. The data is to match against the NOC country code (National Olympic Committee 3 letter code) to the Country name. The columns are as per below:</p>
+								<ol>
+									<li><b>NOC</b> (National Olympic Committee 3 letter code)</li>
+									<li><b>Region</b> </li>
+									<li><b>Notes</b></li>
+								</ol>
+								<p>I am going to see if the data is properly imported by using the head() function to see the first 3 rows of the dataset</p>
+<pre><code>ath.head()</code></pre>
+								<span class="image fit"><img src="images/olympic1.JPG" alt="" /></span>
+								
+
+								<p>As mentioned above the second file (noc_regions.csv) contains the country name as per NOC code. So i am going to match the 2 file together using the merge() function, join to the left and on "NOC" column. After that we will make the the column name consistent.</p>
+<pre><code>#merging data
+ath_df = ath.merge(reg, how = 'left', on = 'NOC')
+#making the column title consistent
+ath_df.rename(columns= {'region':'Region', 'notes':'Notes'}, inplace=True)
+									
+ath_df.head()</code></pre>
+								<span class="image fit"><img src="images/olympic2.JPG" alt="" /></span>
+								<p>This is where the data exploratory begins. I will start with looking at the shape of the data using the shape() function to see the number of rows and columns.</p>
+<pre><code>ath_df.shape</code></pre>
+								<span class="image centre"><img src="images/olympic3.JPG" alt="" /></span>
+								
+								<p>Let's also look at the data information, I want to see the data type of the data and if there are any NaN values. By using the into() function, it can provide me with the information I wanted. As you can see below it shows the data type (int, float or object) as well as the number of data that has non-null values.</p>
+<pre><code>ath_df.info()</code></pre>
+								<span class="image centre"><img src="images/olympic4.JPG" alt="" /></span>
+								
+								<p>To look at more statistical summary/data we can use the describe() function for example percentile, mean and std of the numerical values of the Series or DataFrame.</p>
+<pre><code>ath_df.describe()</code></pre>
+								<span class="image centre"><img src="images/olympic5.JPG" alt="" /></span>
+								
+								<p>As I saw on the previous summary, I notice that there are quite some of the column has a null value. Let's inspect them in more detail. I will now create a list of a column to give a boolean value (True or False). If there is a null value (NA value), will print as True. If there is no null value, print False.</p>
+<pre><code>#checking for null value, will display value as boolean
+
+nan_values = ath_df.isna()
+nan_values.any()</code></pre>
+								<span class="image centre"><img src="images/olympic6.JPG" alt="" /></span>
+
+								<p>As shown above column Age, Height, Weight, Medal Region and Notes has a null value. Now, let's check the count of null values for each column.</p>
+<pre><code>#checking number of null values in each column
+
+ath_df.isnull().sum()</code></pre>
+								<span class="image centre"><img src="images/olympic7.JPG" alt="" /></span>
+								<p>There are a few ways to deal with missing data, like dropping the data entry, replace it by frequency or by mean values or just leave them as is. In this case, I will leave it as missing data because I can't manipulate them.</p>
+
+								<h2>Answering Questions</h2>	
+								<p>1. <b>Top 10 highest count of participants by country</b><br>
+								Using the value_count and sort them in descending order, the column we will be utilising is 'Team'</p>
+<pre><code>top_10 = ath_df.Team.value_counts().sort_values(ascending=False).head(10)
+top_10</code></pre>
+								<span class="image centre"><img src="images/olympic16" alt="" /></span>
+								<p>Let's make it inro a bar chart.</p>
+<pre><code>#ploting the figure
+plt.figure(figsize=(12,6))
+plt.title('Number of Participants by Country')
+sns.barplot(x=top_10.index, y=top_10, palette = 'Set3' )</code></pre>
+								<span class="image fit"><img src="images/olympic8.JPG" alt="" /></span>
+
+								<p>2. <b>Age distribution of the athletes - histogram & boxplot</b></br>
+								I am going plot a histogram to represent the age distribution of the athletes</p>
+<pre><code>#age distribution
+
+plt.figure(figsize=(12,6))
+plt.title("Age distribution of the athletes")
+plt.xlabel('Age')
+plt.ylabel('Number of participants')
+plt.hist(ath_df.Age, bins = np.arange(10,80,2), color="blue", edgecolor = 'white');</code></pre>
+								<span class="image fit"><img src="images/olympic9.JPG" alt="" /></span>
+
+								<p>Now lets use box plot to slow the age distribution.</p>
+<pre><code>#using boxplot
+agedis = ath_df.Age
+	
+plt.figure(figsize=(16, 6))
+ax = sns.boxplot(data=agedis, orient="h", palette="Set2")
+	
+plt.title('Box plot Age Distribution')
+plt.xlabel('Age')
+	
+plt.show()</code></pre>
+								<span class="image fit"><img src="images/olympic10.JPG" alt="" /></span>
+								<p>As shown on the charts above, we can see that majority of the participants are aged between 22-26.</p>
+
+								<p>3. <b>Summer and Winter games unique sports</b></br>
+									Olympic games are divided into 2 seasons, Winter and Summer. in this analysis I am going to extract the unique sports for each season. using unique() function we can extract the unique value for 'Sport' column.</p>
+<pre><code># winter sports
+winter_sports = ath_df[ath_df.Season == 'Winter'].Sport.unique()
+winter_sports</code></pre>
+								<span class="image centre"><img src="images/olympic11.JPG" alt="" /></span>
+<pre><code># summer sports
+summer_sports = ath_df[ath_df.Season == 'Summer'].Sport.unique()
+summer_sports</code></pre>
+								<span class="image centre"><img src="images/olympic12.JPG" alt="" /></span>
+
+								<p>4. <b>Gender distribution. MALE & FEMALE</b></br>
+									In this section, I would like to see the gender distribution. Using pie chart to look at the percentage of male vs female. We first have to create an object for the gender and then we will create a pie chart based on that object.</p>
+<pre><code>#gender data
+gender_counts = ath_df.Sex.value_counts()
+
+# plotting the pie chart
+gender_counts.plot(kind='pie',figsize=(12,6), 
+autopct='%1.1f%%',startangle=90,shadow=True)
+
+
+plt.title('Male and Female participants')
+plt.show()</code></pre>
+									<span class="image centre"><img src="images/olympic13.JPG" alt="" /></span>
+									<p>The pie chart shown above represents the percentage of males and females. We can clearly see that there are more male participants coming at 72.5%, and the number of female participants is just below 30%.</p>
+									
+									<p>5. <b>Top 5 gold medal count per country- Gold</b></br>
+										In this section, I want to see 5 countries that won the most gold medal. To get that data, we need to look at the 'Medal' column. I will create a bar chart to show the data.</p>
+<pre><code>#gold medal by countires
+goldmedals = ath_df[(ath_df.Medal == 'Gold')]
+topgoldcountries= goldmedals.Region.value_counts().reset_index(name='Medal').head(5)
+
+#ploting bar chart
+goldCountries = sns.catplot(x="index", y="Medal", data=topgoldcountries, kind="bar")
+
+goldCountries.despine(left=False)
+goldCountries.set_xlabels("Top 5 Counries")
+goldCountries.set_ylabels("Number of Medals")
+plt.title("Gold Medals per Country")</code></pre>
+								<span class="image centre"><img src="images/olympic14.JPG" alt="" /></span>
+								<p>As expected, the USA has the highest count of gold medals.</p>
+
+								<p>6. <b>Count of medals - Who won the most medal (not only gold)</b></br>
+									I am going to filter the medal column to exclude any null values because a null value means that the participant did not win any medal.</p>
+<pre><code>allmedals = ath_df[ath_df['Medal'].notnull()]
+mostmedals = allmedals.Name.value_counts().reset_index(name='Medal')
+mostmedals = mostmedals.head(10)
+mostmedals</code></pre>
+								<span class="image centre"><img src="images/olympic15.JPG" alt="" /></span>
+								<p>As you can see Michael Fred Phelps, II won the most medal, coming at 28 medal in total. It can be any medals which is AMAZING. </p>
+
+								<!--<h2>Conclusion</h2>
+								<p> <br />
+								</p>-->
+
+
+
+
+							</section>
+							</div>
+
+				<!-- Copyright -->
+					<div id="copyright">
+						<ul><li>&copy; Brandon Liau</li><li>Design: <a href="https://html5up.net">HTML5 UP</a></li></ul>
+					</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrollex.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>
